@@ -179,6 +179,7 @@ country_code <- read_csv(here("/02_data/Wikipedia-iso-country-codes.csv")) %>%
 
 ``` r
 covid19_df <- covid19_df %>% 
+  mutate(alpha_2 = countrycode::countrycode(country_region, origin = "country.name", destination = "iso2c")) %>% 
   left_join(country_code) %>% 
   clean_names()
 
@@ -263,17 +264,17 @@ unique(big5_filtered$country)
 This is by no way an efficient way but for now it will have to hold:
 
 ``` r
-big5$ext_mean <- rowMeans(big5[,1:10])
-big5$est_mean <- rowMeans(big5[,11:20])
-big5$agr_mean <- rowMeans(big5[,21:30])
-big5$csn_mean <- rowMeans(big5[,31:40])
-big5$opn_mean <- rowMeans(big5[,41:50])
+big5_filtered$ext_mean <- rowMeans(big5_filtered[,1:10])
+big5_filtered$est_mean <- rowMeans(big5_filtered[,11:20])
+big5_filtered$agr_mean <- rowMeans(big5_filtered[,21:30])
+big5_filtered$csn_mean <- rowMeans(big5_filtered[,31:40])
+big5_filtered$opn_mean <- rowMeans(big5_filtered[,41:50])
 ```
 
 ### Country level averages:
 
 ``` r
-country_average <- big5 %>% 
+country_average <- big5_filtered %>% 
   group_by(country) %>% 
   summarise_at(vars(ext_mean:opn_mean), mean, na.rm = T) %>% 
   ungroup()
@@ -296,7 +297,7 @@ country_average %>%
 ### Merge tables and plot
 
 ``` r
-merged_tables <- country_average %>% 
+merged_tables <- country_average %>%
   inner_join(covid19_df, by = c("country" = "alpha_2"))
 ```
 
@@ -327,14 +328,14 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 China might be an outlier in this case, since that is where the outbreak
 started.  
 therefore I will create the plots again without china this time around:
 
 ``` r
-merged_tables_nocn <- merged_tables %>% 
+merged_tables_nocn <- merged_tables %>%
   filter(country != "CN")
 
 plots2 <- list()
@@ -356,14 +357,14 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots2, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 It seems like only OPN (openness) showed a pattern. Countries with
 higher levels of openness saw a higher growth of confirmed cases along
 the 14 days.
 
 ``` r
-merged_tables %>% 
+merged_tables %>%
   select(country_region, opn_mean, sum_confirmed_cases) %>% 
   arrange(-opn_mean) %>% 
   knitr::kable() %>% 
@@ -514,50 +515,6 @@ Switzerland
 
 <td style="text-align:left;">
 
-Cruise Ship
-
-</td>
-
-<td style="text-align:right;">
-
-4.001299
-
-</td>
-
-<td style="text-align:right;">
-
-634
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Korea, South
-
-</td>
-
-<td style="text-align:right;">
-
-4.001299
-
-</td>
-
-<td style="text-align:right;">
-
-5621
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
 Italy
 
 </td>
@@ -646,28 +603,6 @@ Greece
 
 <td style="text-align:left;">
 
-Iraq
-
-</td>
-
-<td style="text-align:right;">
-
-3.954839
-
-</td>
-
-<td style="text-align:right;">
-
-208
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
 Denmark
 
 </td>
@@ -734,28 +669,6 @@ Norway
 
 <td style="text-align:left;">
 
-Iceland
-
-</td>
-
-<td style="text-align:right;">
-
-3.907189
-
-</td>
-
-<td style="text-align:right;">
-
-568
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
 Belgium
 
 </td>
@@ -800,19 +713,19 @@ United Kingdom
 
 <td style="text-align:left;">
 
-Iran
+Korea, South
 
 </td>
 
 <td style="text-align:right;">
 
-3.813054
+3.801193
 
 </td>
 
 <td style="text-align:right;">
 
-6566
+5621
 
 </td>
 
@@ -835,50 +748,6 @@ Japan
 <td style="text-align:right;">
 
 241
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Kuwait
-
-</td>
-
-<td style="text-align:right;">
-
-3.773048
-
-</td>
-
-<td style="text-align:right;">
-
-112
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:left;">
-
-Bahrain
-
-</td>
-
-<td style="text-align:right;">
-
-3.769565
-
-</td>
-
-<td style="text-align:right;">
-
-228
 
 </td>
 
@@ -1008,7 +877,7 @@ boxplot(results)
 # dev.off()
 ```
 
-<img src="https://github.com/AmitLevinson/replications/blob/master/big5-replication/fig/benchmark_big5.png" width="600" />
+<img src="C:/Users/amitl/R_code/replications/big5-replication//fig/benchmark_big5.png" width="600" />
 
 1.  Actually, this drove me a bit crazy as I was having trouble figuring
     this out. Sometimes you just have to open that csv and give it a
