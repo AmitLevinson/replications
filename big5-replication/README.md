@@ -415,7 +415,7 @@ boxplot(results)
 # dev.off()
 ```
 
-<img src="C:/Users/amitl/R_code/replications/big5-replication//fig/benchmark_big5.png" width="600" />
+<img src="https://github.com/AmitLevinson/replications/blob/master/big5-replication/fig/benchmark_big5.png" width="600" />
 
 1.  Actually, this drove me a bit crazy as I was having trouble figuring
     this out. Sometimes you just have to open that csv and give it a
