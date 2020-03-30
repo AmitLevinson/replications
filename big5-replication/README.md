@@ -327,7 +327,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 China might be an outlier in this case, since that is where the outbreak
 started.  
@@ -356,7 +356,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots2, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 It seems like only OPN (openness) showed a pattern. Countries with
 higher levels of openness saw a higher growth of confirmed cases along
@@ -1008,7 +1008,7 @@ boxplot(results)
 # dev.off()
 ```
 
-<img src="C:/Users/amitl/R_code/replications/big5-replication//fig/benchmark_big5.png" width="600" />
+<img src="https://github.com/AmitLevinson/replications/blob/master/big5-replication/fig/benchmark_big5.png" width="600" />
 
 1.  Actually, this drove me a bit crazy as I was having trouble figuring
     this out. Sometimes you just have to open that csv and give it a
