@@ -312,7 +312,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 China might be an outlier in this case, since that is where the outbreak
 started.  
