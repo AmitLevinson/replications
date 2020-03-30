@@ -292,7 +292,7 @@ country_average %>%
   coord_flip()
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](code_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ### Merge tables and plot
 
@@ -328,7 +328,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](code_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 China might be an outlier in this case, since that is where the outbreak
 started.  
@@ -357,7 +357,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots2, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](code_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 It seems like only OPN (openness) showed a pattern. Countries with
 higher levels of openness saw a higher growth of confirmed cases along
