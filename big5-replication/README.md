@@ -243,7 +243,7 @@ unique(big5_filtered$country)
 
 ### Compute average
 
-This is by now way an efficient way but for now it will have to hold:
+This is by no way an efficient way but for now it will have to hold:
 
 ``` r
 big5$ext_mean <- rowMeans(big5[,1:10])
@@ -251,8 +251,6 @@ big5$est_mean <- rowMeans(big5[,11:20])
 big5$agr_mean <- rowMeans(big5[,21:30])
 big5$csn_mean <- rowMeans(big5[,31:40])
 big5$opn_mean <- rowMeans(big5[,41:50])
-
-# big5[,cols_to_change] <- sapply(big5[,cols_to_change], as.numeric)
 ```
 
 ### Country level averages:
