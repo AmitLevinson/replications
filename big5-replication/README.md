@@ -33,7 +33,9 @@ covid_raw <- train %>%
 
 covid19 <- covid_raw %>% 
   select("Id","Country/Region", "Date", "ConfirmedCases") %>% 
-  clean_names()
+  clean_names() %>% 
+  # remove duplicates
+  distinct(id, date, country_region, confirmed_cases)
 ```
 
 ### Filter
@@ -93,14 +95,14 @@ head(covid_mindays[covid_mindays$country_region == "China",])
 ```
 
     ## # A tibble: 6 x 4
-    ##      id country_region date       confirmed_cases
-    ##   <dbl> <chr>          <date>               <dbl>
-    ## 1  4376 China          2020-01-26              60
-    ## 2  4377 China          2020-01-27              70
-    ## 3  4378 China          2020-01-28             106
-    ## 4  4379 China          2020-01-29             152
-    ## 5  4380 China          2020-01-30             200
-    ## 6  4381 China          2020-01-31             237
+    ##      id date       country_region confirmed_cases
+    ##   <dbl> <date>     <chr>                    <dbl>
+    ## 1  4376 2020-01-26 China                       60
+    ## 2  4377 2020-01-27 China                       70
+    ## 3  4378 2020-01-28 China                      106
+    ## 4  4379 2020-01-29 China                      152
+    ## 5  4380 2020-01-30 China                      200
+    ## 6  4381 2020-01-31 China                      237
 
 ``` r
 covid19_collapse_province <- covid_mindays %>% 
@@ -128,24 +130,39 @@ covid19_df <- covid19_collapse_province %>%
   arrange(desc(date)) %>% 
   slice(1)
 
-covid19_df
+covid19_df %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
 ```
 
-    ## # A tibble: 26 x 3
-    ## # Groups:   country_region [26]
-    ##    country_region date       `sum(confirmed_cases)`
-    ##    <chr>          <date>                      <dbl>
-    ##  1 Austria        2020-03-19                   2013
-    ##  2 Bahrain        2020-03-17                    228
-    ##  3 Belgium        2020-03-19                   1795
-    ##  4 China          2020-02-04                  22353
-    ##  5 Cruise Ship    2020-02-20                    634
-    ##  6 Denmark        2020-03-22                   3020
-    ##  7 Egypt          2020-03-22                    327
-    ##  8 France         2020-03-12                  18248
-    ##  9 Germany        2020-03-13                   3675
-    ## 10 Greece         2020-03-21                    530
-    ## # ... with 16 more rows
+| country\_region | date       | sum(confirmed\_cases) |
+| :-------------- | :--------- | --------------------: |
+| Austria         | 2020-03-19 |                  2013 |
+| Bahrain         | 2020-03-17 |                   228 |
+| Belgium         | 2020-03-19 |                  1795 |
+| China           | 2020-02-04 |                 22353 |
+| Cruise Ship     | 2020-02-20 |                   634 |
+| Denmark         | 2020-03-22 |                  1510 |
+| Egypt           | 2020-03-22 |                   327 |
+| France          | 2020-03-12 |                  2281 |
+| Germany         | 2020-03-13 |                  3675 |
+| Greece          | 2020-03-21 |                   530 |
+| Iceland         | 2020-03-22 |                   568 |
+| Iran            | 2020-03-08 |                  6566 |
+| Iraq            | 2020-03-20 |                   208 |
+| Israel          | 2020-03-21 |                   883 |
+| Italy           | 2020-03-06 |                  4636 |
+| Japan           | 2020-02-29 |                   241 |
+| Korea, South    | 2020-03-04 |                  5621 |
+| Kuwait          | 2020-03-15 |                   112 |
+| Malaysia        | 2020-03-19 |                   900 |
+| Netherlands     | 2020-03-18 |                  2051 |
+| Norway          | 2020-03-17 |                  1463 |
+| Singapore       | 2020-02-26 |                    93 |
+| Spain           | 2020-03-14 |                  6391 |
+| Sweden          | 2020-03-18 |                  1279 |
+| Switzerland     | 2020-03-16 |                  2200 |
+| United Kingdom  | 2020-03-16 |                  1543 |
 
 Great, now join the country names with country abbreviations (two
 letters) using the wikipedia-iso-country-codes.csv. I found this more
@@ -177,7 +194,7 @@ head(covid19_df)
     ## 3 Belgium        2020-03-19                1795 BE     
     ## 4 China          2020-02-04               22353 CN     
     ## 5 Cruise Ship    2020-02-20                 634 <NA>   
-    ## 6 Denmark        2020-03-22                3020 DK
+    ## 6 Denmark        2020-03-22                1510 DK
 
 ## Big Five Personality Data
 
@@ -206,7 +223,7 @@ some of the variables. To do that we just implement a simple substation
 of 6 from every reverse-keyed item:
 
 ``` r
-positively_keyed <- c('EXT1', 'EXT3', 'EXT5', 'EXT7', 'EXT9','EST1', 'EST3', 'EST5', 'EST6', 'EST7', 'EST8', 'EST9', 'EST10','AGR2', 'AGR4', 'AGR6', 'AGR8', 'AGR9', 'AGR10','CSN1', 'CSN3', 'CSN5', 'CSN7', 'CSN9', 'CSN10', 'OPN1', 'OPN3', 'OPN5', 'OPN7', 'OPN8', 'OPN9', 'OPN10')
+# positively_keyed <- c('EXT1', 'EXT3', 'EXT5', 'EXT7', 'EXT9','EST1', 'EST3', 'EST5', 'EST6', 'EST7', 'EST8', 'EST9', 'EST10','AGR2', 'AGR4', 'AGR6', 'AGR8', 'AGR9', 'AGR10','CSN1', 'CSN3', 'CSN5', 'CSN7', 'CSN9', 'CSN10', 'OPN1', 'OPN3', 'OPN5', 'OPN7', 'OPN8', 'OPN9', 'OPN10')
 
 negatively_keyed <- c('EXT2', 'EXT4', 'EXT6', 'EXT8', 'EXT10', 'EST2', 'EST4',  'AGR1', 'AGR3', 'AGR5', 'AGR7',  'CSN2', 'CSN4', 'CSN6', 'CSN8', 'OPN2', 'OPN4', 'OPN6')
 ```
@@ -243,7 +260,7 @@ unique(big5_filtered$country)
 
 ### Compute average
 
-This is by now way an efficient way but for now it will have to hold:
+This is by no way an efficient way but for now it will have to hold:
 
 ``` r
 big5$ext_mean <- rowMeans(big5[,1:10])
@@ -251,8 +268,6 @@ big5$est_mean <- rowMeans(big5[,11:20])
 big5$agr_mean <- rowMeans(big5[,21:30])
 big5$csn_mean <- rowMeans(big5[,31:40])
 big5$opn_mean <- rowMeans(big5[,41:50])
-
-# big5[,cols_to_change] <- sapply(big5[,cols_to_change], as.numeric)
 ```
 
 ### Country level averages:
@@ -322,14 +337,15 @@ therefore I will create the plots again without china this time around:
 merged_tables_nocn <- merged_tables %>% 
   filter(country != "CN")
 
+plots2 <- list()
+
 for(i in 1:5) {
   # correlation
   corr <- cor.test(merged_tables_nocn$sum_confirmed_cases, merged_tables_nocn[[i]])
   cor_size <- format(round(corr$estimate, 2), nsmall = 2)
   cor_p <- format(round(corr$p.value,2),nsmall = 2)
-  
   # Plot
-  plots[[i]] <- local({
+  plots2[[i]] <- local({
     ggplot(merged_tables_nocn, aes(x = merged_tables_nocn[[i]], y = sum_confirmed_cases))+
       geom_point()+
       geom_smooth(method = "lm")+
@@ -337,7 +353,7 @@ for(i in 1:5) {
   })
  }
 
-cowplot::plot_grid(plotlist = plots, nrow = 5)
+cowplot::plot_grid(plotlist = plots2, nrow = 5)
 ```
 
 ![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
@@ -354,34 +370,611 @@ merged_tables %>%
   kableExtra::kable_styling()
 ```
 
-| country\_region | opn\_mean | sum\_confirmed\_cases |
-| :-------------- | --------: | --------------------: |
-| Germany         |  4.089598 |                  3675 |
-| Israel          |  4.088819 |                   883 |
-| France          |  4.066059 |                 18248 |
-| Austria         |  4.056052 |                  2013 |
-| Switzerland     |  4.015059 |                  2200 |
-| Cruise Ship     |  4.001299 |                   634 |
-| Korea, South    |  4.001299 |                  5621 |
-| Italy           |  3.991518 |                  4636 |
-| Spain           |  3.974855 |                  6391 |
-| Sweden          |  3.965763 |                  1279 |
-| Greece          |  3.961823 |                   530 |
-| Iraq            |  3.954839 |                   208 |
-| Denmark         |  3.942429 |                  3020 |
-| Netherlands     |  3.942170 |                  6153 |
-| Norway          |  3.916673 |                  1463 |
-| Iceland         |  3.907189 |                   568 |
-| Belgium         |  3.906212 |                  1795 |
-| United Kingdom  |  3.901462 |                  7715 |
-| Iran            |  3.813054 |                  6566 |
-| Japan           |  3.794982 |                   241 |
-| Kuwait          |  3.773048 |                   112 |
-| Bahrain         |  3.769565 |                   228 |
-| Egypt           |  3.742885 |                   327 |
-| Singapore       |  3.643089 |                    93 |
-| China           |  3.590298 |                 22353 |
-| Malaysia        |  3.422120 |                   900 |
+<table class="table" style="margin-left: auto; margin-right: auto;">
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+country\_region
+
+</th>
+
+<th style="text-align:right;">
+
+opn\_mean
+
+</th>
+
+<th style="text-align:right;">
+
+sum\_confirmed\_cases
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Germany
+
+</td>
+
+<td style="text-align:right;">
+
+4.089598
+
+</td>
+
+<td style="text-align:right;">
+
+3675
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Israel
+
+</td>
+
+<td style="text-align:right;">
+
+4.088819
+
+</td>
+
+<td style="text-align:right;">
+
+883
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+France
+
+</td>
+
+<td style="text-align:right;">
+
+4.066059
+
+</td>
+
+<td style="text-align:right;">
+
+2281
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Austria
+
+</td>
+
+<td style="text-align:right;">
+
+4.056052
+
+</td>
+
+<td style="text-align:right;">
+
+2013
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Switzerland
+
+</td>
+
+<td style="text-align:right;">
+
+4.015059
+
+</td>
+
+<td style="text-align:right;">
+
+2200
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Cruise Ship
+
+</td>
+
+<td style="text-align:right;">
+
+4.001299
+
+</td>
+
+<td style="text-align:right;">
+
+634
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Korea, South
+
+</td>
+
+<td style="text-align:right;">
+
+4.001299
+
+</td>
+
+<td style="text-align:right;">
+
+5621
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Italy
+
+</td>
+
+<td style="text-align:right;">
+
+3.991518
+
+</td>
+
+<td style="text-align:right;">
+
+4636
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Spain
+
+</td>
+
+<td style="text-align:right;">
+
+3.974855
+
+</td>
+
+<td style="text-align:right;">
+
+6391
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Sweden
+
+</td>
+
+<td style="text-align:right;">
+
+3.965763
+
+</td>
+
+<td style="text-align:right;">
+
+1279
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Greece
+
+</td>
+
+<td style="text-align:right;">
+
+3.961823
+
+</td>
+
+<td style="text-align:right;">
+
+530
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Iraq
+
+</td>
+
+<td style="text-align:right;">
+
+3.954839
+
+</td>
+
+<td style="text-align:right;">
+
+208
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Denmark
+
+</td>
+
+<td style="text-align:right;">
+
+3.942429
+
+</td>
+
+<td style="text-align:right;">
+
+1510
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Netherlands
+
+</td>
+
+<td style="text-align:right;">
+
+3.942170
+
+</td>
+
+<td style="text-align:right;">
+
+2051
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Norway
+
+</td>
+
+<td style="text-align:right;">
+
+3.916673
+
+</td>
+
+<td style="text-align:right;">
+
+1463
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Iceland
+
+</td>
+
+<td style="text-align:right;">
+
+3.907189
+
+</td>
+
+<td style="text-align:right;">
+
+568
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Belgium
+
+</td>
+
+<td style="text-align:right;">
+
+3.906212
+
+</td>
+
+<td style="text-align:right;">
+
+1795
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+United Kingdom
+
+</td>
+
+<td style="text-align:right;">
+
+3.901462
+
+</td>
+
+<td style="text-align:right;">
+
+1543
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Iran
+
+</td>
+
+<td style="text-align:right;">
+
+3.813054
+
+</td>
+
+<td style="text-align:right;">
+
+6566
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Japan
+
+</td>
+
+<td style="text-align:right;">
+
+3.794982
+
+</td>
+
+<td style="text-align:right;">
+
+241
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Kuwait
+
+</td>
+
+<td style="text-align:right;">
+
+3.773048
+
+</td>
+
+<td style="text-align:right;">
+
+112
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Bahrain
+
+</td>
+
+<td style="text-align:right;">
+
+3.769565
+
+</td>
+
+<td style="text-align:right;">
+
+228
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Egypt
+
+</td>
+
+<td style="text-align:right;">
+
+3.742885
+
+</td>
+
+<td style="text-align:right;">
+
+327
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Singapore
+
+</td>
+
+<td style="text-align:right;">
+
+3.643089
+
+</td>
+
+<td style="text-align:right;">
+
+93
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+China
+
+</td>
+
+<td style="text-align:right;">
+
+3.590298
+
+</td>
+
+<td style="text-align:right;">
+
+22353
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Malaysia
+
+</td>
+
+<td style="text-align:right;">
+
+3.422120
+
+</td>
+
+<td style="text-align:right;">
+
+900
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 <br> <br> <br>
 
