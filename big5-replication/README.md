@@ -5,12 +5,13 @@ Amit Levinson
 
 #### Introduction
 
-As part of [Almog Simchon'��s](https://almogsi.com/) course, he asked us
-to replicate in `R` [Tyler
-Burleigh’s](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/)
-fantastic ‘COVID-19 and the Big 5 Personality Test’.  
-I found parts of it challenging (using a for loop with ggplot) but fun
-nonetheless\! I’d love to hear comments about the code (for example
+As part of [Almog Simchon](https://almogsi.com/) “Psychological Data
+Science Lab”, he asked participants to try and replicate [Tyler Burleigh
+fantastic COVID-19 and the Big 5 Personality Test
+blogpost](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/)
+in `R`. You can find links to all the data files in his blogpost. I
+found parts of it challenging (using a for loop with ggplot) but fun
+nonetheless\! I would love to hear comments about the code (for example
 moving the for loop to `apply`) or any mistake I might have done.
 
 ### Libraries
@@ -19,14 +20,13 @@ moving the for loop to `apply`) or any mistake I might have done.
 library(tidyverse)
 library(here)
 library(janitor)
-library(data.table)
 ```
 
 ### Load data
 
 ``` r
-train <- read_csv("02_data/train.csv")
-test <- read_csv("02_data/test.csv")
+train <- read_csv(here("02_data/train.csv"))
+test <- read_csv(here("02_data/test.csv"))
 
 covid_raw <- train %>% 
   full_join(test, by = c("Country/Region" = "Country/Region", "Date" = "Date")) 
@@ -38,8 +38,8 @@ covid19 <- covid_raw %>%
 
 ### Filter
 
-Next we’ll filter to countries that reached at least 50 cases and had at
-least 14 days of data beyond that point.
+Next we will filter to countries that reached at least 50 cases and had
+at least 14 days of data beyond that point.
 
 ``` r
 covid_mindays <- covid19 %>% 
@@ -67,25 +67,26 @@ unique(covid_mindays$country_region)
     ## [21] "Norway"         "Singapore"      "Spain"          "Sweden"        
     ## [25] "Switzerland"    "United Kingdom"
 
-Why do I have more countries? That’s because I downloaded the data on
-Maarch 23, 2020, while the author of the post downloaded it on March 20,
-2020. during these three days some of the countries discovered more
-cases which, sadly, made them meet our criteria \[^1\].
+**Why do I have more countries than Tyler?** That is because I
+downloaded the data on March 23, 2020, while the author of the post
+downloaded it on March 20, 2020. during these three days some of the
+countries discovered more cases which, sadly, made them meet our
+criteria.\[1\]
 
 ### Compute growth over 14 days
 
-Next we’ll compute the growth in cases for each country with our start
+Next I will compute the growth in cases for each country with our start
 point being the date they reached 50 confirmed cases (as filtered
 before) until the following 14 day following that date.
 
-I’m not sure I’m correctly following along but at this point the
-original post has some sort of ‘index’ column that was evident in thier
-display. This column is in the original dataset before we select our
-columns. Therefore I’ll return to that dataset and take the new columns
-along with the ‘index’.
+I an not sure I correctly followed along but at this point the original
+post has some sort of index column that was evident in their display.
+This column is in the original dataset before we select our columns.
+Therefore I will return to that dataset and take the new columns along
+with the index.
 
-Now let’s look at countries that are represented multiple times,
-probably because they’re written under different provinces:
+Now I will look at countries that are represented multiple times,
+probably because they are written under different provinces:
 
 ``` r
 head(covid_mindays[covid_mindays$country_region == "China",])
@@ -146,15 +147,15 @@ covid19_df
     ## 10 Greece         2020-03-21                    530
     ## # ... with 16 more rows
 
-Great, now let’s join the country names with country abbrevations (two
-letters) using the `{ISOcodes}` package, specifically the `{ISO_3166_1}`
-function. In the original post Tyler uses a dataset for merging, which I
-found more suitable since S.Korea and Iran didn’t merge properly. I also
-selected the two first columns which contain the Country and Alpha\_2
-code (the two letters). Lastly I reset the names:
+Great, now join the country names with country abbreviations (two
+letters) using the wikipedia-iso-country-codes.csv. I found this more
+suitable, in accordance to the original post, after trying several
+attempts with the `{isocodes}`. I only selected the two first columns
+which contain the Country and Alpha\_2 code (the two letters) and reset
+their names:
 
 ``` r
-country_code <- read_csv(here("/02_data/wikipedia-iso-country-codes.csv")) %>% 
+country_code <- read_csv(here("/02_data/Wikipedia-iso-country-codes.csv")) %>% 
   select(1:2) %>% 
   set_names("country_region", "alpha_2")
 ```
@@ -178,49 +179,30 @@ head(covid19_df)
     ## 5 Cruise Ship    2020-02-20                 634 <NA>   
     ## 6 Denmark        2020-03-22                3020 DK
 
-well, South Korea, Iran and Cruise Ship didn’t merge properly. Cruise
-Ship we anyway don’t want, but let’s fix that for S. Korea and Iran.
-\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# NOT RELEVANT
-\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
-
-``` r
-#covid19_df <- covid_raw %>% 
-#  filter(`Country/Region` %in% country_names) %>% 
-#  clean_names() %>% 
-#  select(id, country_region, date, confirmed_cases)
-```
-
 ## Big Five Personality Data
 
-Next let’s bring in the [Big Five personality data from
+Now we can bring in the [Big Five personality data from
 kaggla](https://www.kaggle.com/tunguz/big-five-personality-test). The
 dataset containes 1M answers collected online by [Open
 Psychometrics](https://openpsychometrics.org/tests/IPIP-BFFM/) and
 consists of the country in which the respondent is located.
 
 ``` r
-# cols_to_change <- c(1:100,102:107,109,110)  
-# big5 <- fread(here("/02_data/data-final.csv"))
-
-# data.table
-# big5 <- big5[,(cols_to_change):=lapply(.SD, as.numeric), .SDcols = cols_to_change]
-
-# big5[,(negatively_keyed):=lapply(.SD, six_minus),.SDcols = negatively_keyed]
 big5 <- read_delim(here("/02_data/data-final.csv"), delim = "\t")
 ```
 
-I’m not too familiar with the Big 5 so I won’t try to explain the
+I am not too familiar with the Big 5 so I will not try to explain the
 underlying factors, positive and negative scales underlying it. You can
-read more about it in [Tyler’s original
+read more about it in [Tylers original
 post](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/)
-or more in depth at the scale documentation on the [IPIP’s
+or more in depth at the scale documentation on the [IPIP
 website](https://ipip.ori.org/newBigFive5broadKey.htm), also linked from
 his post.
 
 ### Reverse-coding
 
-Before we begin analyzing the personality test we want to revese code
-some of the variables. To do that we just implement a simple substaction
+Before we begin analyzing the personality test we want to reverse code
+some of the variables. To do that we just implement a simple substation
 of 6 from every reverse-keyed item:
 
 ``` r
@@ -235,8 +217,8 @@ big5[,negatively_keyed] <- 6-big5[,negatively_keyed]
 
 ### Country-Level Big 5 Aggregates
 
-First, we’ll eliminate countries with not enough obsevations, having the
-cutoff be N = 1000:
+First, I will eliminate countries with not enough observations, having
+the cutoff be N = 1000:
 
 ``` r
 big5_filtered <- big5 %>% 
@@ -261,7 +243,7 @@ unique(big5_filtered$country)
 
 ### Compute average
 
-This is by now way an efficient way but for now it’ll have to hold:
+This is by now way an efficient way but for now it will have to hold:
 
 ``` r
 big5$ext_mean <- rowMeans(big5[,1:10])
@@ -282,7 +264,7 @@ country_average <- big5 %>%
   ungroup()
 ```
 
-### Let’s look at the top level country extraverts:
+### Let us look at the top level country extraverts:
 
 ``` r
 country_average %>% 
@@ -294,7 +276,7 @@ country_average %>%
   coord_flip()
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ### Merge tables and plot
 
@@ -330,11 +312,11 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
-China might be an outlier in this case, since that’s where the outbreak
+China might be an outlier in this case, since that is where the outbreak
 started.  
-Let’s see the plots again without china:
+therefore I will create the plots again without china this time around:
 
 ``` r
 merged_tables_nocn <- merged_tables %>% 
@@ -358,10 +340,10 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
-Its seems like only ‘OPN’ (opennes) showed a pattern. Countries with
-higher levels of opennes saw a higher growth of confirmed cases along
+It seems like only OPN (openness) showed a pattern. Countries with
+higher levels of openness saw a higher growth of confirmed cases along
 the 14 days.
 
 ``` r
@@ -405,15 +387,15 @@ merged_tables %>%
 
 -----
 
-\#\#\#Appendix
+### Appendix
 
 #### Benchmarking data.table::fread, read\_delim and read.csv
 
-I initially used `read.csv` to read the big5 file which was (extremely)
-slow in loading and wrangling. Learning (this past week) about
-data.table was a great surprise to see how much faster it loads. I also
-eventually figured out to use `read_delim` instaed of `read_csv` which
-eventually worked.  
+I initially used `read.csv` to read the big5 file which was slow in
+loading and data wrangling. Learning (this past week) about data.table
+was a great surprise to see how much faster it loads. I also eventually
+figured out to use `read_delim` instead of `read_csv` which eventually
+worked with the current data.  
 Checkout the benchmarking below (I won’t be running it, see plot below
 as image):
 
@@ -426,7 +408,6 @@ times = 10
 )
 # Plot benchmark
 boxplot(results)
-
 # Save
 # png(file="saving_plot2.png",
 # width=600, height=350)
@@ -434,4 +415,8 @@ boxplot(results)
 # dev.off()
 ```
 
-![](./fig/benchmark_big5.png)
+<img src="C:/Users/amitl/R_code/replications/big5-replication//fig/benchmark_big5.png" width="600" />
+
+1.  Actually, this drove me a bit crazy as I was having trouble figuring
+    this out. Sometimes you just have to open that csv and give it a
+    scroll\!

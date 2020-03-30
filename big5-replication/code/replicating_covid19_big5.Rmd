@@ -12,8 +12,8 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 #### Introduction
-As part of [Almog Simchon's](https://almogsi.com/) "Psychological Data Science Lab", he asked participants to try and replicate  [Tyler Burleigh's fantastic 'COVID-19 and the Big 5 Personality Test' blogpost](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/)  in `R`.  You can find links to all the data files in his blogpost.
-I found parts of it challenging (using a for loop with ggplot) but fun nonetheless! I'd love to hear comments about the code (for example moving the for loop to `apply`) or any mistake I might have done. 
+As part of [Almog Simchon](https://almogsi.com/) "Psychological Data Science Lab", he asked participants to try and replicate  [Tyler Burleigh fantastic COVID-19 and the Big 5 Personality Test blogpost](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/)  in `R`.  You can find links to all the data files in his blogpost.
+I found parts of it challenging (using a for loop with ggplot) but fun nonetheless! I would love to hear comments about the code (for example moving the for loop to `apply`) or any mistake I might have done. 
 
 ### Libraries
 
@@ -38,7 +38,7 @@ covid19 <- covid_raw %>%
 ```
 
 ### Filter
-Next we'll filter to countries that reached at least 50 cases and had at least 14 days of data beyond that point.
+Next we will filter to countries that reached at least 50 cases and had at least 14 days of data beyond that point.
 
 ```{r}
 covid_mindays <- covid19 %>% 
@@ -53,18 +53,18 @@ n_distinct(covid_mindays$country_region)
 unique(covid_mindays$country_region)
 ```
 
-**Why do I have more countries than Tyler?** That's because I downloaded the data on March 23, 2020, while the author of the post downloaded it on March 20, 2020. during these three days some of the countries discovered more cases which, sadly, made them meet our criteria.[^note]
+**Why do I have more countries than Tyler?** That is because I downloaded the data on March 23, 2020, while the author of the post downloaded it on March 20, 2020. during these three days some of the countries discovered more cases which, sadly, made them meet our criteria.[^note]
 
 [^note]: Actually, this drove me a bit crazy as I was having trouble figuring this out. Sometimes you just have to open that csv and give it a scroll!
 
 ### Compute growth over 14 days
 
-Next we'll compute the growth in cases for each country with our start point being the date they reached 50 confirmed cases (as filtered before) until the following 14 day following that date. 
+Next I will compute the growth in cases for each country with our start point being the date they reached 50 confirmed cases (as filtered before) until the following 14 day following that date. 
 
-I'm not sure I'm correctly following along but at this point the original post has some sort of 'index' column that was evident in their display. This column is in the original dataset before we select our columns. Therefore I'll return to that dataset and take the new columns along with the 'index'.
+I an not sure I correctly followed along but at this point the original post has some sort of index column that was evident in their display. This column is in the original dataset before we select our columns. Therefore I will return to that dataset and take the new columns along with the index.
 
 
-Now let's look at countries that are represented multiple times, probably because they're written under different provinces:
+Now I will look at countries that are represented multiple times, probably because they are written under different provinces:
 ```{r}
 head(covid_mindays[covid_mindays$country_region == "China",])
 ```
@@ -87,7 +87,7 @@ covid19_df <- covid19_collapse_province %>%
 covid19_df
 ```
 
-Great, now let's join the country names with country abbreviations (two letters) using the 'wikipedia-iso-country-codes.csv'. I found this more suitable, in accordance to Tyler's post, after trying several attempts with the `{isocodes}`. I only selected the two first columns which contain the Country and Alpha_2 code (the two letters) and reset their names:
+Great, now join the country names with country abbreviations (two letters) using the wikipedia-iso-country-codes.csv. I found this more suitable, in accordance to the original post, after trying several attempts with the `{isocodes}`. I only selected the two first columns which contain the Country and Alpha_2 code (the two letters) and reset their names:
 
 ```{r}
 country_code <- read_csv(here("/02_data/Wikipedia-iso-country-codes.csv")) %>% 
@@ -105,14 +105,14 @@ head(covid19_df)
 
 ## Big Five Personality Data
 
-Next let's bring in the [Big Five personality data from kaggla](https://www.kaggle.com/tunguz/big-five-personality-test). The dataset containes 1M answers collected online by [Open Psychometrics](https://openpsychometrics.org/tests/IPIP-BFFM/) and consists of the country in which the respondent is located. 
+Now we can bring in the [Big Five personality data from kaggla](https://www.kaggle.com/tunguz/big-five-personality-test). The dataset containes 1M answers collected online by [Open Psychometrics](https://openpsychometrics.org/tests/IPIP-BFFM/) and consists of the country in which the respondent is located. 
 
 ```{r}
 big5 <- read_delim(here("/02_data/data-final.csv"), delim = "\t")
 ```
 
 
-I'm not too familiar with the Big 5 so I won't try to explain the underlying factors, positive and negative scales underlying it. You can read more about it in [Tyler's original post](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/) or more in depth at the scale documentation on the [IPIP's website](https://ipip.ori.org/newBigFive5broadKey.htm), also linked from his post.
+I am not too familiar with the Big 5 so I will not try to explain the underlying factors, positive and negative scales underlying it. You can read more about it in [Tylers original post](https://tylerburleigh.com/blog/covid-19-and-the-big-5-personality-test/) or more in depth at the scale documentation on the [IPIP website](https://ipip.ori.org/newBigFive5broadKey.htm), also linked from his post.
 
 ### Reverse-coding
 
@@ -129,7 +129,7 @@ big5[,negatively_keyed] <- 6-big5[,negatively_keyed]
 ```
 
 ### Country-Level Big 5 Aggregates
-First, we'll eliminate countries with not enough observations, having the cutoff be N = 1000:
+First, I will eliminate countries with not enough observations, having the cutoff be N = 1000:
 
 ```{r}
 big5_filtered <- big5 %>% 
@@ -142,7 +142,7 @@ unique(big5_filtered$country)
 
 ### Compute average
 
-This is by now way an efficient way but for now it'll have to hold:
+This is by now way an efficient way but for now it will have to hold:
 
 ```{r}
 big5$ext_mean <- rowMeans(big5[,1:10])
@@ -164,7 +164,7 @@ country_average <- big5 %>%
 ```
 
 
-### Let's look at the top level country extraverts:
+### Let us look at the top level country extraverts:
 ```{r}
 country_average %>% 
   select(country, ext_mean) %>% 
@@ -212,8 +212,8 @@ cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
 
-China might be an outlier in this case, since that's where the outbreak started.  
-Let's see the plots again without china:
+China might be an outlier in this case, since that is where the outbreak started.  
+therefore I will create the plots again without china this time around:
 
 ```{r fig.width=5, fig.height=16}
 merged_tables_nocn <- merged_tables %>% 
@@ -237,7 +237,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-Its seems like only 'OPN' (openness) showed a pattern. Countries with higher levels of openness saw a higher growth of confirmed cases along the 14 days.
+It seems like only OPN (openness) showed a pattern. Countries with higher levels of openness saw a higher growth of confirmed cases along the 14 days.
 
 ```{r}
 merged_tables %>% 
