@@ -340,7 +340,7 @@ for(i in 1:5) {
 cowplot::plot_grid(plotlist = plots, nrow = 5)
 ```
 
-![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](replicating_covid19_big5_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 It seems like only OPN (openness) showed a pattern. Countries with
 higher levels of openness saw a higher growth of confirmed cases along
